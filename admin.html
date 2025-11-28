@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FVS - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Root Variables --- */
+        :root {
+            --primary-blue: #007BFF;
+            --success-green: #28A745;
+            --danger-red: #DC3545;
+            --salary-purple: #6F42C1; /* New color for salary */
+            --light-bg: #E9ECEF;
+            --box-bg: #FFFFFF;
+            --text-color: #343A40;
+            --header-bg: #F8F9FA;
+        }
+
+        /* --- General Styles --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        #header {
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--box-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        #header h1 {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 2em;
+            margin: 0;
+        }
+        #header p {
+            margin-top: 5px;
+            color: #6c757d;
+        }
+
+        /* --- Main Content Layout --- */
+        #main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* --- New Salary Box specific styles --- */
+        #salary-admin-box {
+            border-top-color: var(--salary-purple);
+            flex: 1 1 100%; /* Make salary box take full width */
+        }
+        #salary-admin-box h2 {
+            border-left: 8px solid var(--salary-purple);
+            padding-left: 10px;
+            border-bottom: none;
+        }
+
+
+        /* --- Admin Box Styles (Existing) --- */
+        .admin-box {
+            background: var(--box-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-top: 5px solid var(--primary-blue);
+            flex: 1 1 45%; /* Allows two boxes per row on wider screens */
+            min-width: 300px;
+            box-sizing: border-box;
+        }
+        .admin-box h2 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* --- Form Elements --- */
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #CED4DA;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row > div {
+            flex: 1;
+        }
+        /* Fix spacing issue for salary box */
+        #salary-admin-box label {
+            margin-top: 10px;
+        }
+        #salary-admin-box .form-row label {
+             margin-top: 15px;
+        }
+
+
+        /* --- Button Styles --- */
+        button {
+            padding: 12px 18px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        #add-staff-btn { background: var(--success-green); }
+        #add-staff-btn:hover { background: #1E7E34; }
+
+        #delete-staff-btn { background: var(--danger-red); }
+        #delete-staff-btn:hover { background: #BD2130; }
+
+        #set-salary-btn { background: var(--salary-purple); }
+        #set-salary-btn:hover { background: #5a349c; }
+
+
+        button:active {
+            transform: scale(0.98);
+        }
+        button:disabled {
+            background: #CED4DA;
+            color: #6C757D;
+            cursor: not-allowed;
+        }
+
+        /* --- Staff List Table --- */
+        #staff-list-container {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+        }
+        #staff-list-container h2 {
+            border-top: 5px solid var(--primary-blue);
+            padding-top: 20px;
+            border-radius: 0;
+            margin-top: 30px;
+        }
+
+        .table-responsive {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--box-bg);
+            font-size: 0.9em;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: var(--text-color);
+            position: sticky; /* Keep header visible on scroll */
+            top: 0;
+            z-index: 10;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .delete-btn-small {
+            background: var(--danger-red);
+            padding: 5px 10px;
+            font-size: 0.8em;
+            border-radius: 5px;
+            width: auto;
+            margin: 0;
+        }
+        .delete-btn-small:hover {
+            background: #BD2130;
+        }
+
+        /* --- Status Messages --- */
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .text-success { color: var(--success-green); }
+        .text-error { color: var(--danger-red); }
+        .text-info { color: var(--primary-blue); }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            #main-content {
+                flex-direction: column;
+            }
+            .admin-box {
+                flex: 1 1 100%;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header id="header">
+    <h1>FVS Admin Panel</h1>
+    <p>Manage Staff IDs and Payroll Information.</p>
+</header>
+
+<div id="main-content">
+
+    <div id="add-staff-box" class="admin-box">
+        <h2 style="border-left: 8px solid var(--success-green); padding-left: 10px; border-bottom: none;">➕ Add New Staff</h2>
+        <label for="new-staff-id">Staff ID (Unique):</label>
+        <input type="text" id="new-staff-id" placeholder="e.g., TE101" required>
+
+        <label for="new-staff-name">Staff Name:</label>
+        <input type="text" id="new-staff-name" placeholder="e.g., John Doe" required>
+
+        <button id="add-staff-btn" onclick="addStaffHandler()">
+            ➕ Add New Staff
+        </button>
+        <div id="add-status" class="status-message text-info">Enter details above to add a user.</div>
+    </div>
+
+    <div id="delete-staff-box" class="admin-box">
+        <h2 style="border-left: 8px solid var(--danger-red); padding-left: 10px; border-bottom: none;">🗑️ Remove Staff by ID</h2>
+        <label for="delete-staff-id">Staff ID to Remove:</label>
+        <input type="text" id="delete-staff-id" placeholder="e.g., TE101" required>
+
+        <button id="delete-staff-btn" onclick="deleteStaffByIdHandler()">
+            🗑️ Confirm Remove Staff
+        </button>
+        <div id="delete-status" class="status-message text-info">Enter Staff ID above to remove.</div>
+    </div>
+
+    <div id="salary-admin-box" class="admin-box">
+        <h2>💰 Set Staff Monthly Salary</h2>
+        <label for="salary-staff-id">Staff ID:</label>
+        <input type="text" id="salary-staff-id" placeholder="e.g., TE101" required>
+
+        <div class="form-row">
+            <div>
+                <label for="salary-month">Month:</label>
+                <select id="salary-month" required></select>
+            </div>
+            <div>
+                <label for="salary-year">Year:</label>
+                <select id="salary-year" required></select>
+            </div>
+        </div>
+
+        <label for="base-salary-amount">Base Salary (INR):</label>
+        <input type="number" id="base-salary-amount" placeholder="e.g., 20000" min="0" required oninput="calculateTotalSalary()">
+
+        <label for="expense-amount">Expense/Allowance (INR):</label>
+        <input type="number" id="expense-amount" placeholder="e.g., 5000" min="0" value="0" oninput="calculateTotalSalary()">
+
+        <label for="total-salary-amount">Total Salary (Base + Expense):</label>
+        <input type="number" id="total-salary-amount" placeholder="Calculated Total" readonly>
+        <label for="salary-description">Notes (Optional):</label>
+        <input type="text" id="salary-description" placeholder="e.g., Full-time pay for site X">
+
+        <button id="set-salary-btn" onclick="setStaffSalaryHandler()">
+            💸 Record Staff Salary
+        </button>
+        <div id="salary-status" class="status-message text-info">Fill details to record the monthly salary.</div>
+    </div>
+    </div>
+
+<div id="staff-list-container">
+    <h2>📋 Current Staff List</h2>
+    <div id="staff-list-status" class="status-message text-info">Loading staff list...</div>
+    <div class="table-responsive">
+        <table id="staff-table">
+            <thead>
+                <tr>
+                    <th>Staff ID</th>
+                    <th>Staff Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="staff-table-body">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    // 🛑 REPLACE THIS with YOUR Apps Script Web App URL 🛑
+    // Ensure this URL is the same as the one used in index.html and deployed from your Apps Script.
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyi1G2SoF75RHhlYm4GQm2q2qjBk8mb-vb5nu0b4-p6YR0KJ02703R777PcosV2mwsh/exec';
+
+    // UI elements
+    const staffTableBody = document.getElementById('staff-table-body');
+    const staffListStatus = document.getElementById('staff-list-status');
+    const addStatus = document.getElementById('add-status');
+    const addStaffButton = document.getElementById('add-staff-btn');
+    const deleteStatus = document.getElementById('delete-status');
+    const deleteStaffButton = document.getElementById('delete-staff-btn');
+
+    // New Salary elements (UPDATED)
+    const salaryStaffIdInput = document.getElementById('salary-staff-id');
+    const salaryMonthSelect = document.getElementById('salary-month');
+    const salaryYearSelect = document.getElementById('salary-year');
+    const baseSalaryInput = document.getElementById('base-salary-amount'); // NEW
+    const expenseInput = document.getElementById('expense-amount'); // NEW
+    const totalSalaryInput = document.getElementById('total-salary-amount'); // NEW
+    const salaryDescriptionInput = document.getElementById('salary-description');
+    const salaryStatus = document.getElementById('salary-status');
+    const setSalaryButton = document.getElementById('set-salary-btn');
+
+    // Existing staff management inputs (re-declared for clarity)
+    const newStaffIdInput = document.getElementById('new-staff-id');
+    const newStaffNameInput = document.getElementById('new-staff-name');
+    const deleteStaffIdInput = document.getElementById('delete-staff-id');
+
+
+    // --- UTILITIES FOR SALARY INPUTS ---
+    function populateMonthYear() {
+        const today = new Date();
+        const currentMonth = today.getMonth(); // 0-indexed
+        const currentYear = today.getFullYear();
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        // Populate Months
+        monthNames.forEach((name, index) => {
+            const option = document.createElement('option');
+            // Value is 1-12, padded with leading zero for Apps Script if needed
+            option.value = (index + 1).toString().padStart(2, '0');
+            option.textContent = name;
+            salaryMonthSelect.appendChild(option);
+            if (index === currentMonth) {
+                option.selected = true;
+            }
+        });
+
+        // Populate Years (Current year and last 2 years)
+        for (let i = 0; i < 3; i++) {
+            const year = currentYear - i;
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            salaryYearSelect.appendChild(option);
+            if (i === 0) {
+                option.selected = true;
+            }
+        }
+    }
+
+    /**
+     * Calculates the Total Salary (Base + Expense) and updates the total input.
+     */
+    function calculateTotalSalary() {
+        // Ensure values are treated as numbers, defaulting to 0 if empty/invalid
+        const base = parseFloat(baseSalaryInput.value) || 0;
+        const expense = parseFloat(expenseInput.value) || 0;
+        const total = base + expense;
+
+        // Update the read-only total input
+        totalSalaryInput.value = total > 0 ? total.toFixed(2) : '';
+    }
+
+
+    /**
+     * Handler for the "Record Staff Salary" button.
+     * Submits Base Salary, Expense, and Total Salary.
+     */
+    async function setStaffSalaryHandler() {
+        const staffId = salaryStaffIdInput.value.trim().toUpperCase();
+        const month = salaryMonthSelect.value;
+        const year = salaryYearSelect.value;
+
+        // Get the new salary component values
+        const baseAmount = parseFloat(baseSalaryInput.value);
+        const expenseAmount = parseFloat(expenseInput.value) || 0; // Default expense to 0 if empty
+        const totalAmount = parseFloat(totalSalaryInput.value); // Calculated value
+
+        const description = salaryDescriptionInput.value.trim();
+
+        // Basic Validation
+        if (!staffId || !month || !year || isNaN(baseAmount) || baseAmount < 0 || isNaN(totalAmount) || totalAmount <= 0) {
+            salaryStatus.innerHTML = '<span class="text-error">Staff ID, Month, Year, and a valid Base Salary/Total Salary are required.</span>';
+            return;
+        }
+
+        const dataToSend = {
+            action: 'SET_SALARY',
+            staffId: staffId,
+            month: month, // '01' to '12'
+            year: year,
+            baseSalary: baseAmount.toFixed(2), // NEW FIELD
+            expense: expenseAmount.toFixed(2),  // NEW FIELD
+            totalSalary: totalAmount.toFixed(2), // NEW FIELD
+            description: description || 'N/A'
+        };
+
+        const successMsg = `Salary of ₹${totalAmount.toLocaleString('en-IN')} recorded for ${month}/${year}.`;
+        await sendAdminRequest(dataToSend, salaryStatus, setSalaryButton, successMsg);
+
+        // Clear only non-select inputs after successful submission
+        salaryStaffIdInput.value = '';
+        baseSalaryInput.value = '';
+        expenseInput.value = '0'; // Reset expense to 0
+        totalSalaryInput.value = ''; // Clear calculated total
+        salaryDescriptionInput.value = '';
+    }
+
+    /**
+     * Fetches the current staff list and populates the table.
+     */
+    async function fetchStaffData() {
+        if (WEB_APP_URL.includes('AKfycbwNIQZypdgraFcLbxdE1U7HHps22PA6KHVAwddLAedOvnV5ncTnN-RQgtkCE3NuKX11/exec')) {
+             staffListStatus.innerHTML = '<span class="text-error">❌ ERROR: Please replace the placeholder WEB_APP_URL in the script!</span>';
+             return;
+        }
+        staffListStatus.innerHTML = '<span class="text-info">⏳ Loading staff list...</span>';
+        staffTableBody.innerHTML = '';
+
+        try {
+            // Use standard fetch (which uses doGet on the Apps Script side)
+            const response = await fetch(WEB_APP_URL);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const staffArray = await response.json();
+
+            if (staffArray.error) {
+                 throw new Error(staffArray.error);
+            }
+
+            if (staffArray.length === 0) {
+                staffListStatus.innerHTML = '<span class="text-info">No staff members found in the list.</span>';
+                return;
+            }
+
+            // Populate the table
+            staffArray.forEach(staff => {
+                const row = staffTableBody.insertRow();
+                row.insertCell(0).textContent = staff.id;
+                row.insertCell(1).textContent = staff.name;
+
+                const actionCell = row.insertCell(2);
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Remove';
+                deleteButton.className = 'delete-btn-small';
+                deleteButton.onclick = () => deleteStaff(staff.id);
+                actionCell.appendChild(deleteButton);
+            });
+
+            staffListStatus.innerHTML = `<span class="text-success">✅ Staff list loaded successfully (${staffArray.length} entries).</span>`;
+
+        } catch (error) {
+            console.error('Failed to fetch staff data:', error);
+            staffListStatus.innerHTML = `<span class="text-error">❌ Failed to load staff list. Error: ${error.message}</span>`;
+        }
+    }
+
+
+    /**
+     * Handler for the "Add New Staff" button.
+     */
+    async function addStaffHandler() {
+        const staffId = newStaffIdInput.value.trim().toUpperCase();
+        const staffName = newStaffNameInput.value.trim();
+
+        if (!staffId || !staffName) {
+            addStatus.innerHTML = '<span class="text-error">Staff ID and Name cannot be empty.</span>';
+            return;
+        }
+
+        const dataToSend = {
+            action: 'ADD_STAFF',
+            staffId: staffId,
+            staffName: staffName
+        };
+
+        await sendAdminRequest(dataToSend, addStatus, addStaffButton, 'Staff added successfully.');
+
+        // Clear inputs after successful submission
+        newStaffIdInput.value = '';
+        newStaffNameInput.value = '';
+    }
+
+    /**
+     * Handler for the "Remove Staff by ID" section.
+     */
+    async function deleteStaffByIdHandler() {
+        const staffId = deleteStaffIdInput.value.trim().toUpperCase();
+
+        if (!staffId) {
+            deleteStatus.innerHTML = '<span class="text-error">Staff ID to delete cannot be empty.</span>';
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to remove staff ID: ${staffId}? This action cannot be undone.`)) {
+            deleteStatus.innerHTML = '<span class="text-info">Deletion cancelled by user.</span>';
+            return;
+        }
+
+        await deleteStaff(staffId, deleteStatus, deleteStaffButton);
+
+        // Clear input after submission
+        deleteStaffIdInput.value = '';
+    }
+
+    /**
+     * Core function to delete a staff member (used by both methods).
+     */
+    async function deleteStaff(staffId, statusElement = staffListStatus, buttonElement = null) {
+
+        // If coming from the table button, reconfirm
+        if(buttonElement === null && !confirm(`Are you sure you want to remove staff ID: ${staffId}? This action cannot be undone.`)) {
+            statusElement.innerHTML = '<span class="text-info">Deletion cancelled by user.</span>';
+            return;
+        }
+
+        const dataToSend = {
+            action: 'DELETE_STAFF',
+            staffId: staffId
+        };
+
+        await sendAdminRequest(dataToSend, statusElement, buttonElement, `Staff ID ${staffId} removed successfully.`);
+    }
+
+
+    /**
+     * Sends the POST request to the Apps Script with the action data.
+     */
+    async function sendAdminRequest(data, statusElement, buttonElement, successMessage) {
+
+        if (buttonElement) {
+            buttonElement.disabled = true;
+            buttonElement.textContent = 'Processing...';
+        }
+        statusElement.innerHTML = '<span class="text-info">⏳ Sending request...</span>';
+
+        try {
+            // Note: We use 'no-cors' mode for Google Apps Script Web App POST
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            // Since we use 'no-cors', we rely on the action being successful on the server side and refresh the list.
+
+            // Wait a moment for the Apps Script to finish writing to the sheet
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            statusElement.innerHTML = `<span class="text-success">✅ ${successMessage} ${data.action !== 'SET_SALARY' ? 'Refreshing list...' : ''}</span>`;
+
+            // Re-fetch the staff list to update the table immediately for staff list actions
+            if (data.action === 'ADD_STAFF' || data.action === 'DELETE_STAFF') {
+                 await fetchStaffData();
+            }
+
+        } catch (error) {
+            console.error('Admin Action Error:', error);
+            statusElement.innerHTML = `<span class="text-error">❌ Failed: Check Network/Apps Script. ${error.message}</span>`;
+        } finally {
+            if (buttonElement) {
+                buttonElement.disabled = false;
+                // Reset button text based on action
+                if (data.action === 'ADD_STAFF') {
+                    buttonElement.textContent = '➕ Add New Staff';
+                } else if (data.action === 'DELETE_STAFF') {
+                    buttonElement.textContent = '🗑️ Confirm Remove Staff';
+                } else if (data.action === 'SET_SALARY') {
+                    buttonElement.textContent = '💸 Record Staff Salary';
+                }
+            }
+        }
+    }
+
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        populateMonthYear();
+        fetchStaffData();
+        // Initial calculation call if you want the total field to be non-empty when page loads
+        calculateTotalSalary();
+    });
+</script>
+
+</body>
+</html>

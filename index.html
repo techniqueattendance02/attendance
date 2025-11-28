@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FVS - Field Verification System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #007BFF; /* Brighter Blue */
+            --success-green: #28A745; /* Standard Green */
+            --accent-yellow: #FFC107; /* Standard Yellow */
+            --light-bg: #E9ECEF; /* Light Grey-Blue background */
+            --box-bg: #FFFFFF;
+            --text-color: #343A40;
+            --danger-red: #DC3545;
+            --salary-purple: #6F42C1; /* New color for Salary tab */
+            --info-cyan: #17A2B8; /* For the salary popup */
+        }
+
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--light-bg) 0%, #D1E5F0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        #header {
+            text-align: center;
+            padding: 15px 0;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        #header img {
+            max-width: 80px;
+            height: auto;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 5px;
+            transition: transform 0.5s ease;
+        }
+
+        #header h1 {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 1.8em;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        #main-content {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .fvs-tabs {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 15px 30px;
+            cursor: pointer;
+            background: #f1f1f1;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            margin: 0 5px;
+            font-weight: 700;
+            color: var(--text-color);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .tab-button.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+        }
+
+        .tab-button[data-tab="salary"].active {
+            background: var(--salary-purple);
+            border-color: var(--salary-purple);
+            box-shadow: 0 4px 10px rgba(111, 66, 193, 0.2);
+        }
+
+
+        #id-box, #location-box, #camera-box, #salary-box, #company-box {
+            background: var(--box-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-left: 8px solid var(--primary-blue);
+            width: 30%;
+            min-width: 280px;
+            max-width: 450px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            transition: all 0.3s ease-in-out;
+            animation: fadeInSlideUp 0.6s ease-out both;
+        }
+
+        #staff-details-display {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid var(--primary-blue);
+            border-radius: 8px;
+            background: #F0F8FF;
+        }
+
+        #salary-form-box {
+             background: var(--box-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 900px;
+            border-left: 8px solid var(--salary-purple);
+            box-sizing: border-box;
+        }
+
+        #salary-data-viewer-box {
+            background: var(--box-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 900px;
+            border-left: 8px solid var(--salary-purple);
+            box-sizing: border-box;
+        }
+
+
+        #location-box { border-left-color: var(--accent-yellow); animation-delay: 0.1s; }
+        #camera-box { border-left-color: var(--success-green); animation-delay: 0.2s; }
+        #company-box { border-left-color: #6C757D; animation-delay: 0.4s; }
+
+        #camera-box {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        #checkin-content {
+            /* Set desktop layout for Check-in tab */
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        #salary-content {
+            width: 100%;
+            max-width: 900px; /* Wider for the form and data */
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeInSlideUp 0.6s ease-out both;
+        }
+
+
+        h3 {
+            color: var(--text-color);
+            border-bottom: 3px solid var(--primary-blue);
+            padding-bottom: 8px;
+            margin-top: 0;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        #salary-form-box h3, #salary-data-viewer-box h3 {
+            border-bottom-color: var(--salary-purple);
+        }
+
+        .verification-type-selector {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0 10px;
+            padding: 10px;
+            background: #F8F9FA;
+            border: 1px solid #DEE2E6;
+            border-radius: 8px;
+        }
+
+
+        #staff-id-select,
+        #salary-staff-id-select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #CED4DA;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1.0em;
+            background-color: #F8F9FA;
+            color: var(--text-color);
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+            transition: all 0.3s;
+        }
+
+        #staff-id-select, #salary-staff-id-select {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23007BFF" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+        }
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            background: var(--primary-blue);
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: background 0.3s, transform 0.1s, box-shadow 0.3s;
+            text-transform: uppercase;
+        }
+
+        #open-camera-btn { background: #17A2B8; }
+        #capture-btn { background: #FF8C00; }
+        #submit-btn { background: var(--success-green); font-size: 1.1em; }
+        #refresh-btn { background: #6C757D; margin-top: 20px; }
+        #admin-btn { background: #343A40; margin-top: 10px; }
+        #fetch-salary-btn { background: var(--salary-purple); }
+
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        button:active:not(:disabled) { transform: scale(0.98); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+        button:disabled { background: #CED4DA; color: #6C757D; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        .text-success { color: var(--success-green); font-weight: 600; }
+        .text-error { color: var(--danger-red); font-weight: 600; }
+        .text-info { color: var(--primary-blue); }
+
+        .pulse-text { animation: pulse 1s infinite; display: inline-block; }
+
+        video { width: 100%; border-radius: 8px; }
+        #photo-output { max-width: 100%; height: auto; margin-top: 10px; border-radius: 8px; display: block; }
+        #captured-photo { display: none; margin-top: 15px; text-align: left; }
+
+        /* New styles for Salary Data Table */
+        #salary-data-output table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        #salary-data-output th, #salary-data-output td {
+            border: 1px solid #DEE2E6;
+            padding: 10px 8px;
+            text-align: left;
+        }
+        #salary-data-output th {
+            background-color: var(--salary-purple);
+            color: white;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        /* Make rows clickable and visually responsive */
+        #salary-data-output tr:not(:first-child) {
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        #salary-data-output tr:not(:first-child):hover {
+            background-color: #E6E6FA !important; /* Light Lavender hover */
+            transform: scale(1.005);
+            box-shadow: 0 2px 5px rgba(111, 66, 193, 0.2);
+        }
+        #salary-data-output tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+
+        #google-form-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* --- START MODAL CSS (Shared for Salary and Confirmation) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Darker background */
+            backdrop-filter: blur(5px);
+            padding-top: 60px;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: var(--box-bg);
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border-top: 8px solid var(--info-cyan);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        @keyframes slideIn { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+
+        .modal-header {
+            color: var(--salary-purple);
+            border-bottom: 2px solid var(--info-cyan);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        /* Specific styling for the SUCCESS modal */
+        #confirmation-modal .modal-content {
+            border-top: 8px solid var(--success-green);
+        }
+
+        #confirmation-modal .modal-header {
+            color: var(--success-green);
+            border-bottom-color: var(--success-green);
+        }
+
+        .modal-details p {
+            margin: 8px 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: #F0F8FF;
+            font-size: 1.0em;
+        }
+
+        .modal-details strong {
+            display: inline-block;
+            width: 150px;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: var(--danger-red);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-btn {
+            background-color: var(--info-cyan);
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #confirmation-modal .modal-btn {
+            background-color: var(--success-green); /* Green button for success modal */
+        }
+        /* --- END MODAL CSS --- */
+
+
+        /* 📱 MOBILE OPTIMIZATION (0px to 900px) 📱 */
+        @media (max-width: 900px) {
+            body { padding: 5px; }
+
+            #header h1 { font-size: 1.5em; }
+
+            .fvs-tabs { margin-bottom: 10px; width: 100%; }
+
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+                flex-grow: 1; /* Make tabs take up available width */
+                text-align: center;
+                margin: 0 2px;
+            }
+
+            #main-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            /* Stack all main content boxes vertically and make them full width */
+            #id-box, #location-box, #camera-box, #company-box {
+                width: 100%; /* Full width on mobile */
+                min-width: unset;
+                padding: 15px;
+                border-radius: 10px;
+                margin-bottom: 5px;
+                max-width: unset; /* Remove max-width constraint for full-width look */
+            }
+
+            /* Ensure checkin-content is still column-based on mobile */
+            #checkin-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            /* Salary Content adjustments */
+            #salary-content {
+                max-width: 100%;
+                gap: 15px;
+            }
+
+            #salary-form-box, #salary-data-viewer-box {
+                width: 100%;
+                padding: 15px;
+            }
+
+            /* Improve readability of table on small screens */
+            #salary-data-output table {
+                display: block;
+                overflow-x: auto; /* Enable horizontal scrolling for wide tables */
+                white-space: nowrap; /* Prevent cell wrapping that messes up layout */
+            }
+
+            /* Give inputs and select boxes a consistent mobile look */
+            #staff-id-select, #salary-staff-id-select, button {
+                padding: 12px;
+                font-size: 1.0em;
+            }
+
+            /* Center verification type options better */
+            .verification-type-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .verification-type-selector label {
+                margin: 5px 0;
+            }
+
+            /* Company box (less important, put it at the bottom of the column) */
+            #company-box {
+                order: 99;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header id="header">
+    <img src="https://www.techniqueengineers.com/assets/images/technique-engineers-logo.png" alt="Company Logo">
+    <h1>Field Verification System (FVS)</h1>
+</header>
+
+<div class="fvs-tabs">
+    <div class="tab-button active" data-tab="checkin" onclick="openTab('checkin', this)">
+        ✅ Check-in/out
+    </div>
+    <div class="tab-button" data-tab="salary" onclick="openTab('salary', this)">
+        💰 Monthly Salary
+    </div>
+</div>
+
+<div id="main-content">
+
+    <div id="checkin-content" class="tab-content-box" style="display: flex;">
+        <div id="id-box">
+            <h3>👤 Staff Identification & Type</h3>
+            <p>Select your unique **Staff ID** to begin verification.</p>
+            <select id="staff-id-select" onchange="captureStaffId()">
+            </select>
+
+            <div id="staff-details-display" style="
+                margin-top: 10px;
+                padding: 10px;
+                border: 1px solid var(--primary-blue);
+                border-radius: 8px;
+                background: #F0F8FF;
+                display: none;">
+                </div>
+            <p id="id-status" class="text-info"></p>
+
+            <hr style="border-top: 1px dashed #ddd; margin: 15px 0;">
+            <div class="verification-type-selector">
+                <label>
+                    <input type="radio" name="verification-type" value="IN" checked onchange="setVerificationType(this.value)">
+                    **Check-In (IN Time)**
+                </label>
+                <label>
+                    <input type="radio" name="verification-type" value="OUT" onchange="setVerificationType(this.value)">
+                    **Check-Out (OUT Time)**
+                </label>
+            </div>
+            <p id="type-status" class="text-info" style="text-align: center;">Current Type: **IN**</p>
+        </div>
+
+        <div id="location-box">
+            <h3>📍 Device Location Status</h3>
+            <p id="status" class="text-info">Select a Staff ID to begin...</p>
+        </div>
+
+        <div id="camera-box">
+            <h3>📸 Face Photo Capture</h3>
+            <p id="camera-status" class="text-info">Select a Staff ID to begin...</p>
+            <video id="video" autoplay style="display:none;"></video>
+            <button onclick="openCamera()" disabled id="open-camera-btn">Open Camera</button>
+            <button onclick="capturePhoto()" disabled id="capture-btn">Capture Face Photo</button>
+            <canvas id="canvas" style="display:none;"></canvas>
+
+            <div id="captured-photo">
+                <strong>Captured Photo Preview:</strong>
+                <img id="photo-output" alt="Captured Face Photo">
+            </div>
+
+            <button onclick="uploadDataToGoogleSheet()" disabled id="submit-btn">
+                Submit Check-in/out Data
+            </button>
+        </div>
+    </div>
+    <div id="salary-content" class="tab-content-box" style="display: none;">
+
+        <div id="salary-form-box">
+            <h3>📝 Submit Monthly Salary Details (Google Form)</h3>
+            <p>Fill out the form below to submit your monthly salary claim/details. It may be helpful to open the form in a new window using the link below if it doesn't display correctly.</p>
+            <iframe id="google-form-iframe"
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSfFyAx6ZHOLYAjhv7p_e25twD4CdUI-4l1JHNbAEcCAXBZBDQ/viewform?usp=publish-editor"
+                    frameborder="0"
+                    marginheight="0"
+                    marginwidth="0">Loading Form…
+            </iframe>
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfFyAx6ZHOLYAjhv7p_e25twD4CdUI-4l1JHNbAEcCAXBZBDQ/viewform?usp=publish-editor" target="_blank">Open Form in New Tab</a>
+            </p>
+        </div>
+
+        <div id="salary-data-viewer-box">
+            <h3>📊 View My Monthly Salary Data</h3>
+            <p>Select your **Staff ID** and click **View Data** to see your submitted salary details for **all recorded months**. **Click any row** to see full details in a popup.</p>
+
+            <label for="salary-staff-id-select" style="display: block; font-weight: 600; margin-bottom: 5px;">👤 Staff ID:</label>
+            <select id="salary-staff-id-select" onchange="document.getElementById('salary-data-output').innerHTML = '<p class=\'text-info\'>Select an ID and click View Data.</p>';">
+            </select>
+
+            <button onclick="fetchStaffSalaryData()" id="fetch-salary-btn">
+                View My Data
+            </button>
+
+            <div id="salary-data-output" style="margin-top: 20px;">
+                <p class="text-info">Select an ID and click View Data.</p>
+            </div>
+        </div>
+
+    </div>
+    <div id="company-box" style="width: 30%; min-width: 280px; max-width: 450px;">
+        <h3>🏢 Company Information</h3>
+        <p>
+            <strong class="text-primary">Company Name:</strong> Technique Engineers<br>
+            <strong class="text-primary">Project:</strong> Field Verification System (FVS)
+        </p>
+        <p>
+            <strong class="text-primary">Version:</strong> 1.6.0 (UX Updated)
+        </p>
+        <button onclick="location.reload()" id="refresh-btn">
+            🔄 Full App Refresh
+        </button>
+
+        <button onclick="redirectToAdmin()" id="admin-btn">
+            🔑 Open Admin Panel
+        </button>
+    </div>
+
+</div>
+
+<div id="confirmation-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeConfirmationPopup()">&times;</span>
+        <div class="modal-header">
+            ✅ Submission Successful!
+        </div>
+        <div id="confirmation-details-content" class="modal-details">
+            </div>
+        <button class="modal-btn" onclick="closeConfirmationPopup()">Got It! Start New Verification</button>
+    </div>
+</div>
+
+<div id="salary-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeSalaryDetailsPopup()">&times;</span>
+        <div class="modal-header">
+            💰 Salary Submission Details
+        </div>
+        <div id="modal-details-content" class="modal-details">
+            </div>
+        <button class="modal-btn" onclick="closeSalaryDetailsPopup()">Close</button>
+    </div>
+</div>
+<script>
+    // 🛑 IMPORTANT: REPLACE THESE URLs with YOUR Apps Script Web App URLs 🛑
+
+    // 1. URL for Check-in/out submission and Staff Data Fetch (doGet)
+    const CHECKIN_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyi1G2SoF75RHhlYm4GQm2q2qjBk8mb-vb5nu0b4-p6YR0KJ02703R777PcosV2mwsh/exec';
+
+    // 2. NEW URL dedicated to FETCHING staff salary data
+    const SALARY_FETCH_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyi1G2SoF75RHhlYm4GQm2q2qjBk8mb-vb5nu0b4-p6YR0KJ02703R777PcosV2mwsh/exec';
+
+
+    // --- GLOBAL DATA ---
+    let STAFF_DATA = [];
+    let currentStaffId = null;
+    let currentPosition = null;
+    let currentPhotoData = null;
+    let stream = null;
+    let currentVerificationType = 'IN';
+
+    // --- DOM Elements ---
+    const staffIdSelect = document.getElementById('staff-id-select');
+    const salaryStaffIdSelect = document.getElementById('salary-staff-id-select');
+    const idStatus = document.getElementById('id-status');
+    const locationStatus = document.getElementById('status');
+    const cameraStatus = document.getElementById('camera-status');
+    const salaryDataOutput = document.getElementById('salary-data-output');
+    const openCameraButton = document.getElementById('open-camera-btn');
+    const captureButton = document.getElementById('capture-btn');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const photoOutput = document.getElementById('photo-output');
+    const capturedPhotoDiv = document.getElementById('captured-photo');
+    const submitButton = document.getElementById('submit-btn');
+    const typeStatus = document.getElementById('type-status');
+    const fetchSalaryButton = document.getElementById('fetch-salary-btn');
+    const staffDetailsDisplay = document.getElementById('staff-details-display');
+
+    // New Modal Elements
+    const salaryModal = document.getElementById('salary-modal');
+    const modalDetailsContent = document.getElementById('modal-details-content');
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const confirmationDetailsContent = document.getElementById('confirmation-details-content');
+
+
+    // --- Tab Switching Logic ---
+    function openTab(tabName, elmnt) {
+        document.querySelectorAll('.tab-content-box').forEach(box => {
+            box.style.display = 'none';
+        });
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        if (tabName === 'checkin') {
+            document.getElementById('checkin-content').style.display = 'flex';
+        } else if (tabName === 'salary') {
+            document.getElementById('salary-content').style.display = 'flex';
+        }
+
+        elmnt.classList.add('active');
+        document.getElementById('company-box').style.display = 'block';
+    }
+
+    // --- Admin Redirection with Simple Auth ---
+    function redirectToAdmin() {
+        const ADMIN_PASSWORD = "Techqe@321"; // You can make this secure later
+        const password = prompt("🔑 Enter the Admin Password to proceed:");
+        if (password === ADMIN_PASSWORD) {
+            window.location.href = "admin.html";
+        } else if (password !== null) {
+            alert("Authentication Failed. Incorrect password.");
+        }
+    }
+
+    // --- Type Selection Handler ---
+    function setVerificationType(type) {
+        currentVerificationType = type;
+        typeStatus.innerHTML = `Current Type: **${type}**`;
+        checkReadiness();
+    }
+
+    // --- Dropdown Population Function ---
+    function populateStaffIds() {
+        staffIdSelect.innerHTML = '';
+        salaryStaffIdSelect.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '--- Select Staff ID ---';
+        staffIdSelect.appendChild(placeholder.cloneNode(true));
+        salaryStaffIdSelect.appendChild(placeholder.cloneNode(true));
+
+        STAFF_DATA.forEach(staff => {
+            const option = document.createElement('option');
+            option.value = staff.id;
+            option.textContent = staff.name; // Display format: ID (Name)
+            staffIdSelect.appendChild(option.cloneNode(true));
+            salaryStaffIdSelect.appendChild(option);
+        });
+    }
+
+    // --- Staff ID Handling (Check-in tab) ---
+    function captureStaffId() {
+        const selectedId = staffIdSelect.value;
+        currentStaffId = selectedId || null;
+
+        if (currentStaffId) {
+            // 1. Find the selected staff member's full details
+            const staff = STAFF_DATA.find(s => s.id === currentStaffId);
+
+            if (staff && staff.details) {
+                staffDetailsDisplay.innerHTML = `
+                    <p style="margin: 0; font-size: 1.1em;">
+                        Welcome, <strong>${staff.details.fullName}</strong>!
+                    </p>
+                    <p style="margin: 5px 0 0; color: var(--primary-blue);">
+                        Have a Grate Day,
+                    </p>
+                `;
+                staffDetailsDisplay.style.display = 'block'; // Show the details box
+            } else {
+                staffDetailsDisplay.innerHTML = `<p class="text-error">Details not found.</p>`;
+                staffDetailsDisplay.style.display = 'block';
+            }
+
+
+            idStatus.innerHTML = `<span class="text-success pulse-text">✅ ID Set: <strong>${currentStaffId}</strong>.</span>`;
+            openCameraButton.disabled = false;
+            locationStatus.innerHTML = '<span class="text-info pulse-text">⏳ Fetching accurate location…</span>';
+            getAccurateLocation();
+        } else {
+            idStatus.innerHTML = '<span class="text-error">Please select your Staff ID.</span>';
+            openCameraButton.disabled = true;
+            locationStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
+            cameraStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
+            staffDetailsDisplay.style.display = 'none'; // Hide the details box
+            checkReadiness();
+        }
+    }
+
+    // Helper function to check if ALL required data points are ready
+    function checkReadiness() {
+        if (currentStaffId && currentPosition && currentPhotoData) {
+            submitButton.disabled = false;
+            submitButton.textContent = `Submit ${currentVerificationType} Data`;
+            submitButton.style.background = 'var(--success-green)';
+            submitButton.classList.add('pulse-text');
+        } else {
+            submitButton.disabled = true;
+            submitButton.textContent = "Submit Check-in/out Data";
+            submitButton.style.background = '#CED4DA';
+            submitButton.classList.remove('pulse-text');
+        }
+    }
+
+    // --- GEOLOCATION FUNCTIONALITY ---
+    function getAccurateLocation() {
+        if (!currentStaffId) return;
+
+        if (!navigator.geolocation) {
+            locationStatus.textContent = "❌ Error: Your browser doesn't support geolocation.";
+            locationStatus.className = 'text-error';
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude, accuracy } = position.coords;
+                currentPosition = { latitude, longitude, accuracy };
+
+                locationStatus.innerHTML = `
+                    <span class="text-success pulse-text">✅ **Location Found!**</span><br>
+                    Latitude: <strong>${latitude.toFixed(6)}</strong><br>
+                    Longitude: <strong>${longitude.toFixed(6)}</strong><br>
+                    Accuracy: <strong>${accuracy.toFixed(1)}</strong> meters
+                `;
+                checkReadiness();
+            },
+            (error) => {
+                locationStatus.textContent = `❌ Location Error: ${error.message}. Please check permissions.`;
+                locationStatus.className = 'text-error';
+                currentPosition = null;
+                checkReadiness();
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    // --- CAMERA FUNCTIONALITY ---
+    async function openCamera() {
+        if (!currentStaffId) return;
+
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            video.style.display = 'none';
+            captureButton.disabled = true;
+            openCameraButton.textContent = "Open Camera";
+            cameraStatus.innerHTML = '<span class="text-info">Camera Closed.</span>';
+            return;
+        }
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            video.srcObject = stream;
+            video.play();
+            video.style.display = 'block';
+            captureButton.disabled = false;
+            openCameraButton.textContent = "Close Camera";
+            cameraStatus.innerHTML = '<span class="text-success">Camera active. Look at the screen.</span>';
+        } catch (err) {
+            console.error("Error accessing camera: ", err);
+            cameraStatus.innerHTML = '<span class="text-error">❌ Error: Could not access camera. Allow permissions.</span>';
+            captureButton.disabled = true;
+            video.style.display = 'none';
+        }
+    }
+
+    function capturePhoto() {
+        if (!stream) {
+            cameraStatus.textContent = "Camera not active. Click 'Open Camera' first.";
+            return;
+        }
+
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const dataUrl = canvas.toDataURL('image/png');
+
+        currentPhotoData = dataUrl;
+        photoOutput.src = dataUrl;
+        capturedPhotoDiv.style.display = 'block';
+
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+        video.style.display = 'none';
+        captureButton.disabled = true;
+
+        cameraStatus.innerHTML = '<span class="text-success pulse-text">✅ Photo captured! Submit the data now.</span>';
+        openCameraButton.textContent = "Re-Open Camera";
+
+        checkReadiness();
+    }
+
+    // --- MODAL FUNCTIONS (Check-in Confirmation) ---
+
+    function closeConfirmationPopup() {
+        confirmationModal.style.display = 'none';
+    }
+
+    function showConfirmationPopup(data) {
+        const staff = STAFF_DATA.find(s => s.id === data.staffId) || { details: { fullName: 'Unknown User' } };
+        const staffName = staff.details.fullName;
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateString = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+        confirmationDetailsContent.innerHTML = `
+            <p style="text-align: center; font-size: 1.2em; font-weight: 600;">
+                Thank you, ${staffName}!
+            </p>
+            <p><strong>Verification Type:</strong> <span style="color: var(--success-green);">${data.type}</span></p>
+            <p><strong>Staff ID:</strong> ${data.staffId}</p>
+            <p><strong>Date & Time:</strong> ${dateString} at ${timeString}</p>
+            <p><strong>Location:</strong> ${data.latitude.toFixed(4)}, ${data.longitude.toFixed(4)}</p>
+            <p style="background: var(--accent-yellow); padding: 10px; border-radius: 5px; text-align: center; color: var(--text-color);">
+                Your location and photo have been recorded.
+            </p>
+        `;
+        confirmationModal.style.display = 'block';
+    }
+
+
+    // --- UPLOAD FUNCTIONALITY: CHECK-IN/OUT (UPDATED) ---
+    async function uploadDataToGoogleSheet() {
+        if (!currentStaffId || !currentPosition || !currentPhotoData) {
+            alert("Error: Missing Staff ID, Location, or Photo Data.");
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting Data... Please Wait";
+        submitButton.style.background = 'var(--primary-blue)';
+        submitButton.classList.add('pulse-text');
+
+        const dataToSend = {
+            staffId: currentStaffId,
+            type: currentVerificationType,
+            latitude: currentPosition.latitude,
+            longitude: currentPosition.longitude,
+            accuracy: currentPosition.accuracy,
+            photoData: currentPhotoData
+        };
+
+        try {
+            const response = await fetch(CHECKIN_WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataToSend)
+            });
+
+            // --- SUCCESS HANDLING (No-CORS Mode) ---
+            // We assume success unless a network error occurs.
+            cameraStatus.innerHTML = '<span class="text-success pulse-text">✅ Upload SUCCESS! Data sent to Google Sheet.</span>';
+
+            // 1. Show Confirmation Popup with details
+            showConfirmationPopup(dataToSend);
+
+            // 2. Reset UI for next submission
+            currentPosition = null;
+            currentPhotoData = null;
+            photoOutput.src = '';
+            capturedPhotoDiv.style.display = 'none';
+            staffIdSelect.value = '';
+            currentStaffId = null;
+            idStatus.textContent = '';
+            staffDetailsDisplay.style.display = 'none';
+
+            openCameraButton.disabled = true;
+            locationStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
+            cameraStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
+            checkReadiness();
+
+        } catch (error) {
+            console.error('Upload Error:', error);
+            cameraStatus.innerHTML = `<span class="text-error">❌ Upload FAILED: Check Network/Apps Script URL.</span>`;
+            submitButton.style.background = '#DC3545';
+            submitButton.textContent = "Submission Failed (Click to Retry)";
+            submitButton.disabled = false;
+        }
+    }
+
+
+    // --- MODAL FUNCTIONS (Salary Details - Existing) ---
+
+    function closeSalaryDetailsPopup() {
+        salaryModal.style.display = 'none';
+    }
+
+    function showSalaryDetailsPopup(jsonString) {
+        try {
+            const data = JSON.parse(jsonString);
+            let contentHTML = '';
+
+            // Define the order and labels for the popup (use the full set of data fields)
+            const detailMap = [
+                { label: 'Staff ID', key: 'Staff ID' },
+                { label: 'Month/Year Paid', key: 'Month/Year Paid' },
+                { label: 'Base Salary', key: 'Base Salary' },
+                { label: 'Expense', key: 'Expense' },
+                { label: 'Total Salary', key: 'Total Salary' },
+
+            ];
+
+            detailMap.forEach(item => {
+                let value = data[item.key] || 'N/A';
+
+                // Apply special styling for description (to allow wrapping)
+                if (item.isDescription) {
+                    contentHTML += `<p><strong>${item.label}:</strong></p><p style="word-break: break-word; background: #FFF3CD; padding: 10px; border: 1px dashed var(--accent-yellow); margin-top: 5px;">${value}</p>`;
+                } else {
+                    contentHTML += `<p><strong>${item.label}:</strong> ${value}</p>`;
+                }
+            });
+
+            modalDetailsContent.innerHTML = contentHTML;
+            salaryModal.style.display = 'block';
+
+        } catch (error) {
+            console.error('Error parsing salary data for popup:', error);
+            modalDetailsContent.innerHTML = `<p class="text-error">Error loading details.</p>`;
+            salaryModal.style.display = 'block';
+        }
+    }
+
+    // Close modal if user clicks outside of it
+    window.onclick = function(event) {
+        if (event.target == salaryModal) {
+            closeSalaryDetailsPopup();
+        } else if (event.target == confirmationModal) {
+             closeConfirmationPopup();
+        }
+    }
+
+    // --- UPDATED FUNCTION: Fetch Staff Salary Data (Existing) ---
+    async function fetchStaffSalaryData() {
+        const staffId = salaryStaffIdSelect.value;
+        if (!staffId) {
+            salaryDataOutput.innerHTML = '<p class="text-error">⚠️ Please select a Staff ID first.</p>';
+            return;
+        }
+
+        if (SALARY_FETCH_WEB_APP_URL.includes('AKfycb.../exec')) {
+            salaryDataOutput.innerHTML = '<p class="text-error">❌ ERROR: Please replace the placeholder SALARY_FETCH_WEB_APP_URL in the script!</p>';
+            return;
+        }
+
+        fetchSalaryButton.disabled = true;
+        fetchSalaryButton.textContent = "Fetching Data...";
+        salaryDataOutput.innerHTML = '<p class="text-info pulse-text">⏳ Loading salary history for ' + staffId + '...</p>';
+
+        // Use 'action=getData' to call getStaffSalaryData in your Apps Script
+        const url = `${SALARY_FETCH_WEB_APP_URL}?action=getData&staffId=${staffId}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.error) {
+                salaryDataOutput.innerHTML = `<p class="text-error">❌ API Error: ${data.error}</p>`;
+            } else if (data.length === 0) {
+                salaryDataOutput.innerHTML = `<p class="text-info">ℹ️ No salary data found for **${staffId}**.</p>`;
+            } else {
+                // Define the desired headers and the corresponding keys in the JSON data.
+                // Include ALL keys returned by the Apps Script, even if only some are displayed.
+                const columnMap = [
+                    { display: 'Staff ID', key: 'Staff ID', showInTable: true },
+                    { display: 'Month/Year Paid', key: 'Month/Year Paid', showInTable: true },
+                    { display: 'Base Salary', key: 'Base Salary', showInTable: true },
+                    { display: 'Expense', key: 'Expense', showInTable: true },
+                    { display: 'Total Salary', key: 'Total Salary', showInTable: true },
+
+                ];
+
+                let tableHTML = '<table><thead><tr>';
+
+                // 1. Create table headers (only showing headers where showInTable is true)
+                columnMap.filter(col => col.showInTable).forEach(col => {
+                    tableHTML += `<th>${col.display}</th>`;
+                });
+                tableHTML += '</tr></thead><tbody>';
+
+                // 2. Populate table rows
+                data.forEach(row => {
+                    // Pass the full row JSON object as a data attribute for the popup
+                    const rowJson = JSON.stringify(row).replace(/"/g, '&quot;'); // Escape quotes for HTML attribute
+                    tableHTML += `<tr onclick="showSalaryDetailsPopup('${rowJson}')">`;
+
+                    columnMap.filter(col => col.showInTable).forEach(col => {
+                        // Use the exact string key to access the correct data point from the row object
+                        tableHTML += `<td>${row[col.key] || ''}</td>`;
+                    });
+                    tableHTML += '</tr>';
+                });
+
+                tableHTML += '</tbody></table>';
+                salaryDataOutput.innerHTML = tableHTML;
+            }
+
+        } catch (error) {
+            console.error('Fetch Salary Error:', error);
+            // This error handler captures the JSON.parse error.
+            salaryDataOutput.innerHTML = `<p class="text-error">❌ Network Error: Could not load data. Check the Apps Script URL/permissions. (Error: ${error.message})</p>`;
+        } finally {
+            fetchSalaryButton.disabled = false;
+            fetchSalaryButton.textContent = "View My Data";
+        }
+    }
+
+
+    // --- Data Fetching and Initialization ---
+    async function fetchStaffData() {
+        idStatus.innerHTML = '<span class="text-info pulse-text">⏳ Loading staff list from Google Sheet...</span>';
+
+        if (CHECKIN_WEB_APP_URL.includes('AKfycb.../exec')) {
+             idStatus.innerHTML = '<span class="text-error">❌ ERROR: Please replace the placeholder CHECKIN_WEB_APP_URL in the script!</span>';
+             return;
+        }
+
+        try {
+            const response = await fetch(CHECKIN_WEB_APP_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const staffArray = await response.json();
+
+            // **ASSUMPTION:** The Apps Script returns objects with {id, name} for the staff list
+            const formattedStaff = staffArray.map(staff => {
+                return {
+                    id: staff.id,
+                    name: `${staff.id} (${staff.name})`,
+                    details: {
+                        fullName: staff.name,
+                        // Designation is not returned in the provided doGet, setting it to 'N/A'
+                        designation: "N/A"
+                    }
+                };
+            });
+
+            STAFF_DATA = formattedStaff;
+            populateStaffIds();
+
+            idStatus.innerHTML = `<span class="text-success">✅ Staff list loaded (${staffArray.length} entries).</span>`;
+
+        } catch (error) {
+            console.error('Failed to fetch staff data:', error);
+            idStatus.innerHTML = '<span class="text-error">❌ Failed to load staff list. Check Web App URL, Sheet Name, and Permissions.</span>';
+        }
+    }
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchStaffData();
+        // Ensure the correct initial tab is displayed
+        document.getElementById('checkin-content').style.display = 'flex';
+        document.getElementById('salary-content').style.display = 'none';
+    });
+</script>
+
+</body>
+</html>
