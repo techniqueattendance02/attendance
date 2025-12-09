@@ -563,14 +563,13 @@
             <h3>📝 Submit Monthly Salary Details (Google Form)</h3>
             <p>Fill out the form below to submit your monthly salary claim/details. It may be helpful to open the form in a new window using the link below if it doesn't display correctly.</p>
             <iframe id="google-form-iframe"
-                    src="https://docs.google.com/forms/d/e/1FAIpQLSeOxbMav4TUDOru0tHLsvDJXkgqrFpxiYZaYW6WQwODdh6Xsg/viewform"
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSfFyAx6ZHOLYAjhv7p_e25twD4CdUI-4l1JHNbAEcCAXBZBDQ/viewform?usp=publish-editor"
                     frameborder="0"
                     marginheight="0"
                     marginwidth="0">Loading Form…
             </iframe>
             <p style="text-align: center; margin-top: 10px;">
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOxbMav4TUDOru0tHLsvDJXkgqrFpxiYZaYW6WQwODdh6Xsg/viewform" target="_blank">Open Form in New Tab</a>
-                
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfFyAx6ZHOLYAjhv7p_e25twD4CdUI-4l1JHNbAEcCAXBZBDQ/viewform?usp=publish-editor" target="_blank">Open Form in New Tab</a>
             </p>
         </div>
 
@@ -992,9 +991,8 @@
             const detailMap = [
                 { label: 'Staff ID', key: 'Staff ID' },
                 { label: 'Month/Year Paid', key: 'Month/Year Paid' },
-                { label: 'Base Salary', key: 'Base Salary' },
                 { label: 'Expense', key: 'Expense' },
-                { label: 'Total Salary', key: 'Total Salary' },
+
 
             ];
 
@@ -1066,10 +1064,7 @@
                 const columnMap = [
                     { display: 'Staff ID', key: 'Staff ID', showInTable: true },
                     { display: 'Month/Year Paid', key: 'Month/Year Paid', showInTable: true },
-                    { display: 'Base Salary', key: 'Base Salary', showInTable: true },
                     { display: 'Expense', key: 'Expense', showInTable: true },
-                    { display: 'Total Salary', key: 'Total Salary', showInTable: true },
-
                 ];
 
                 let tableHTML = '<table><thead><tr>';
